@@ -1,0 +1,168 @@
+**Marca
+--------
+{
+"descripcion": "ASUS",
+"vista": 1
+}
+--------
+**Usuario
+--------
+{
+"apellidos": "GONZALES",
+"nombres": "YETSIN",
+"dni": "48761050",
+"correo": "GCRISTIAN755@GMAIL.COM",
+"telefono": "123456789",
+"rol": 1,
+"vista": 1
+}
+--------
+**Categoria
+--------
+{
+"descripcion": "MEMORIA RAM",
+"vista": 1
+}
+--------
+**Articulo
+--------
+{
+"descripcion": "M DDR4 4200",
+"precio": 120.5,
+"stock": 100,
+"vista": 1,
+"idmarca": 1,
+"idcategoria": 1
+}
+--------
+**Cliente
+--------
+{
+  "ruc": "12345678900",
+  "razonSocial": "PRUEBA RAZON SOCIAL",
+  "direccion": "jr los jazmines",
+  "telefono": "987654321",
+  "correo": "correo@gmail.com",
+  "vista": 1
+}
+--------
+**Factura(Quitado-abajo-esta-el-que-usa)
+--------
+{
+"numero": 1000,
+"fecha": "12/12/2012",
+"tipo": 1,
+"estado": 1,
+"subTotal": 82,
+"igv": 18,
+"total": 100,
+"tipoPago": 1,
+"vista": 1,
+"cliente": {
+"id": 1,
+"ruc": "12345678900",
+"razonSocial": "Razon social sac",
+"direccion": "jr los jazmines",
+"telefono": "987654321",
+"correo": "correo@gmail.com",
+"vista": 1
+},
+"usuario": {
+"id": 1,
+"apellidos": "GONZALES",
+"nombres": "YETSIN",
+"dni": "48761050",
+"correo": "GCRISTIAN755@GMAIL.COM",
+"telefono": "123456789",
+"rol": 1,
+"vista": 1
+}
+}
+--------
+**Factura2
+--------
+{
+"numero": 1000,
+"fecha": "12/12/2012",
+"tipo": 1,
+"estado": 1,
+"subTotal": 82,
+"igv": 18,
+"total": 100,
+"tipoPago": 1,
+"vista": 1,
+"idcliente": 1,
+"idusuario": 1
+}
+--------
+**Detalle(Quitado-abajo-esta-el-que-usa)
+--------
+{
+"precio": 120.5,
+"cantidad": 10,
+"articulo": {
+"id": 1,
+"descripcion": "M DDR4 4200",
+"precio": 120.5,
+"stock": 100,
+"vista": 1,
+"marca": {
+"id": 1,
+"descripcion": "ASUS",
+"vista": 1
+},
+"categoria": {
+"id": 1,
+"descripcion": "MEMORIA RAM",
+"vista": 1
+}
+},
+"factura": {
+"id": 1,
+"numero": 1000,
+"fecha": "2010-12-12T00:00:00.000+0000",
+"tipo": 1,
+"estado": 1,
+"subTotal": 82,
+"igv": 18,
+"total": 100,
+"tipoPago": 1,
+"vista": 1,
+"cliente": {
+"id": 1,
+"ruc": "12345678900",
+"razonSocial": "Razon social sac",
+"direccion": "jr los jazmines",
+"telefono": "987654321",
+"correo": "correo@gmail.com",
+"vista": 1
+},
+"usuario": {
+"id": 1,
+"apellidos": "GONZALES",
+"nombres": "YETSIN",
+"dni": "48761050",
+"correo": "GCRISTIAN755@GMAIL.COM",
+"telefono": "123456789",
+"rol": 1,
+"vista": 1
+}
+}
+}
+--------
+**Detalle2
+--------
+[
+  {    
+    "precio": 120.5,
+    "cantidad": 10,
+    "idarticulo": 1,
+    "idfactura": 1
+  },
+  {    
+    "precio": 120.5,
+    "cantidad": 10,
+    "idarticulo": 1,
+    "idfactura": 1
+  }  
+]
