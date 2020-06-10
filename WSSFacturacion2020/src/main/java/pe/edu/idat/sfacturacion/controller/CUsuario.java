@@ -70,6 +70,6 @@ public class CUsuario {
 	}
 	public Usuario invertir(MUsuario usuario) {		
 		return new Usuario(usuario.getId(),usuario.getApellidos(),usuario.getNombres(),usuario.getDni()
-				,usuario.getCorreo(),usuario.getTelefono(),usuario.getRol(),usuario.getVista());
+				,usuario.getCorreo(),usuario.getTelefono(),usuario.getRol(),usuario.getLogin(),usuario.getClave(),usuario.getVista());
 	}	
 }

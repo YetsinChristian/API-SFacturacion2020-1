@@ -10,6 +10,8 @@ public class MUsuario {
 	private String correo;
 	private String telefono;
 	private int rol;
+	private String login;
+	private String clave;
 	private int vista;
 	public MUsuario() {
 		super();
@@ -24,10 +26,14 @@ public class MUsuario {
 		this.correo = usuario.getCorreo();
 		this.telefono = usuario.getTelefono();
 		this.rol = usuario.getRol();
+		this.login = usuario.getLogin();
+		this.clave = usuario.getClave();
 		this.vista = usuario.getVista();
 	}
+	
+	
 	public MUsuario(int id, String apellidos, String nombres, String dni, String correo, String telefono, int rol,
-			int vista) {
+			String login, String clave, int vista) {
 		super();
 		this.id = id;
 		this.apellidos = apellidos;
@@ -36,7 +42,21 @@ public class MUsuario {
 		this.correo = correo;
 		this.telefono = telefono;
 		this.rol = rol;
+		this.login = login;
+		this.clave = clave;
 		this.vista = vista;
+	}
+	public String getLogin() {
+		return login;
+	}
+	public void setLogin(String login) {
+		this.login = login;
+	}
+	public String getClave() {
+		return clave;
+	}
+	public void setClave(String clave) {
+		this.clave = clave;
 	}
 	public int getId() {
 		return id;

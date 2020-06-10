@@ -34,6 +34,10 @@ public class Usuario implements Serializable {
 	private String telefono;
 	@Column(name="rol")
 	private int rol;
+	@Column(name="login")
+	private String login;
+	@Column(name="clave")
+	private String clave;
 	@Column(name="vista")
 	private int vista;
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "usuario")
@@ -42,8 +46,9 @@ public class Usuario implements Serializable {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
 	public Usuario(int id, String apellidos, String nombres, String dni, String correo, String telefono, int rol,
-			int vista) {
+			String login, String clave, int vista) {
 		super();
 		this.id = id;
 		this.apellidos = apellidos;
@@ -52,10 +57,13 @@ public class Usuario implements Serializable {
 		this.correo = correo;
 		this.telefono = telefono;
 		this.rol = rol;
-		this.vista = vista;		
+		this.login = login;
+		this.clave = clave;
+		this.vista = vista;
 	}
+
 	public Usuario(int id, String apellidos, String nombres, String dni, String correo, String telefono, int rol,
-			int vista, List<Factura> listaFactura) {
+			String login, String clave, int vista, List<Factura> listaFactura) {
 		super();
 		this.id = id;
 		this.apellidos = apellidos;
@@ -64,9 +72,12 @@ public class Usuario implements Serializable {
 		this.correo = correo;
 		this.telefono = telefono;
 		this.rol = rol;
+		this.login = login;
+		this.clave = clave;
 		this.vista = vista;
 		this.listaFactura = listaFactura;
 	}
+
 	public int getId() {
 		return id;
 	}
@@ -115,6 +126,23 @@ public class Usuario implements Serializable {
 	public void setVista(int vista) {
 		this.vista = vista;
 	}
+	
+	public String getLogin() {
+		return login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getClave() {
+		return clave;
+	}
+
+	public void setClave(String clave) {
+		this.clave = clave;
+	}
+
 	public List<Factura> getListaFactura() {
 		return listaFactura;
 	}

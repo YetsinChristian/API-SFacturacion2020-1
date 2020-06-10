@@ -14,6 +14,8 @@
 "correo": "GCRISTIAN755@GMAIL.COM",
 "telefono": "123456789",
 "rol": 1,
+"login": "1234",
+"clave": "1234",
 "vista": 1
 }
 --------
