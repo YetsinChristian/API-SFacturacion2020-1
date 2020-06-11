@@ -1,6 +1,6 @@
 package pe.edu.idat.sfacturacion.model;
 
-import pe.edu.idat.sfacturacion.dao.entity.Marca;
+import pe.edu.idat.sfacturacion.entity.Marca;
 
 public class MMarca {
 	private int id;

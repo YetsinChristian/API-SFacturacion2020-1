@@ -1,92 +1,65 @@
 package pe.edu.idat.sfacturacion.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import pe.edu.idat.sfacturacion.dao.entity.Factura;
-import pe.edu.idat.sfacturacion.dao.repository.RFactura;
 import pe.edu.idat.sfacturacion.model.MFactura;
+import pe.edu.idat.sfacturacion.services.SFactura;
 
-@Component
+@RestController
+@RequestMapping("/sfacturacion/facturas")
 public class CFactura {
 	@Autowired
-	private RFactura repository;
-	@Autowired
-	private CCliente compCliente;
-	@Autowired
-	private CUsuario compUsuario;
+	private SFactura controller;
 	
-	public List<MFactura> lista(){
-		List<MFactura> lista = new ArrayList<>();
-		for(Factura a : ((List<Factura>)repository.findAll()).stream().filter(x->x.getVista()!=0).collect(Collectors.toList())) { 
-			lista.add(new MFactura(a));
-		}
-		return lista;
+	@GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> lista(){
+		return new ResponseEntity<Object>(controller.lista(),HttpStatus.OK);
 	}
 	
-	public MFactura buscar(int id) {
-		try {
-			MFactura factura = null;
-			for(MFactura a : lista().stream().filter(x->x.getId()==id).collect(Collectors.toList())) {
-				factura = a;
-			}
-			return factura;
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE )
+	public ResponseEntity<Object> buscar(@PathVariable(name="id")int id){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Factura no encontrada");
+		return new ResponseEntity<Object>(controller.buscar(id),HttpStatus.OK);
 	}
 	
-	public String guardar(MFactura factura) {
-		try {
-			repository.save(invertir(factura));
-			return "Factura registrada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> crear(@RequestBody MFactura factura){
+		String respuesta = controller.guardar(factura);
+		if(respuesta==null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al registrar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.CREATED);
 	}
 	
-	public String actualizar(MFactura factura) {
-		try {
-			repository.save(invertir(factura));
-			return "Factura actualizada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@PutMapping(value="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> actualizar(@PathVariable(name="id") int id, @RequestBody MFactura factura){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Factura no encontrada");
+		String respuesta = controller.actualizar(factura);
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al actualizar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);			
 	}
 	
-	public String eliminar(MFactura factura) {
-		try {
-			Factura eliminar = invertir(factura);
-			eliminar.setVista(0);
-			repository.save(eliminar);
-			return "Factura eliminada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
-	}
-	
-	public Factura invertir(MFactura factura) {
-		return new Factura(
-				factura.getId(),
-				factura.getNumero(),
-				factura.getFecha(),
-				factura.getTipo(),
-				factura.getEstado(),
-				factura.getSubTotal(),
-				factura.getIgv(),
-				factura.getTotal(),
-				factura.getTipoPago(),
-				factura.getVista(),
-				compCliente.invertir(compCliente.buscar(factura.getIdcliente())),
-				compUsuario.invertir(compUsuario.buscar(factura.getIdusuario()))
-				);				
+	@DeleteMapping(value="/{id}")
+	public ResponseEntity<Object> eliminar(@PathVariable(name="id") int id){				
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Factura no encontrada");
+		String respuesta = controller.eliminar(controller.buscar(id));
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al eliminar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);
 	}
 }

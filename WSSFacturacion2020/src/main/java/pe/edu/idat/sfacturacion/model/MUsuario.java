@@ -1,6 +1,6 @@
 package pe.edu.idat.sfacturacion.model;
 
-import pe.edu.idat.sfacturacion.dao.entity.Usuario;
+import pe.edu.idat.sfacturacion.entity.Usuario;
 
 public class MUsuario {
 	private int id;

@@ -1,87 +1,66 @@
 package pe.edu.idat.sfacturacion.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import pe.edu.idat.sfacturacion.dao.entity.Articulo;
-import pe.edu.idat.sfacturacion.dao.repository.RArticulo;
 import pe.edu.idat.sfacturacion.model.MArticulo;
+import pe.edu.idat.sfacturacion.services.SArticulo;
 
-@Component
+@RestController
+@RequestMapping("/sfacturacion/articulos")
 public class CArticulo {
 	@Autowired
-	private RArticulo repository;
-	@Autowired
-	private CMarca compMarca;
-	@Autowired
-	private CCategoria compCategoria;
+	private SArticulo controller;
 	
-	public List<MArticulo> lista(){
-		List<MArticulo> lista = new ArrayList<>();
-		for(Articulo a : ((List<Articulo>)repository.findAll()).stream().filter(x->x.getVista()!=0).collect(Collectors.toList())) {
-			lista.add(new MArticulo(a));
-		}
-		return lista;
+	@GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> lista(){
+		return new ResponseEntity<Object>(controller.lista(),HttpStatus.OK);
 	}
 	
-	public MArticulo buscar(int id) {
-		try {
-			MArticulo articulo = null;
-			for(MArticulo a : lista().stream().filter(x->x.getId()==id).collect(Collectors.toList())) {
-				articulo = a;
-			}
-			return articulo;
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE )
+	public ResponseEntity<Object> buscar(@PathVariable(name="id")int id){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Articulo no encontrada");
+		return new ResponseEntity<Object>(controller.buscar(id),HttpStatus.OK);
 	}
 	
-	public String guardar(MArticulo articulo) {
-		try {
-			repository.save(invertir(articulo));
-			return "Articulo registrado correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> crear(@RequestBody MArticulo articulo){
+		String respuesta = controller.guardar(articulo);
+		if(respuesta==null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al registrar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.CREATED);
 	}
 	
-	public String actualizar(MArticulo articulo) {
-		try {
-			repository.save(invertir(articulo));
-			return "Articulo actualizado correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@PutMapping(value="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> actualizar(@PathVariable(name="id") int id, @RequestBody MArticulo articulo){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Articulo no encontrada");
+		String respuesta = controller.actualizar(articulo);
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al actualizar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);			
 	}
 	
-	public String eliminar(MArticulo articulo) {
-		try {
-			Articulo eliminar = invertir(articulo);
-			eliminar.setVista(0);
-			repository.save(eliminar);
-			return "Articulo eliminado correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@DeleteMapping(value="/{id}")
+	public ResponseEntity<Object> eliminar(@PathVariable(name="id") int id){				
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Articulo no encontrada");
+		String respuesta = controller.eliminar(controller.buscar(id));
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al eliminar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);
 	}
-	
-	public Articulo invertir(MArticulo articulo) {
-		return new Articulo(
-				articulo.getId(),
-				articulo.getDescripcion(),
-				articulo.getPrecio(),
-				articulo.getStock(),
-				articulo.getVista(),
-				compMarca.invertir(compMarca.buscar(articulo.getIdmarca())),
-				compCategoria.invertir(compCategoria.buscar(articulo.getIdcategoria()))
-				);
-	}
+
 }

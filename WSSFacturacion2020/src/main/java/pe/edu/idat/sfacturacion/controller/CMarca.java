@@ -1,75 +1,65 @@
 package pe.edu.idat.sfacturacion.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import pe.edu.idat.sfacturacion.dao.entity.Marca;
-import pe.edu.idat.sfacturacion.dao.repository.RMarca;
 import pe.edu.idat.sfacturacion.model.MMarca;
+import pe.edu.idat.sfacturacion.services.SMarca;
 
-@Component
+@RestController
+@RequestMapping("/sfacturacion/marcas")
 public class CMarca {
 	@Autowired
-	private RMarca repository;
+	private SMarca controller;
 	
-	public List<MMarca> lista(){
-		List<MMarca> lista = new ArrayList<>();
-		for(Marca a : ((List<Marca>)repository.findAll()).stream().filter(x->x.getVista()!=0).collect(Collectors.toList())) {
-			lista.add(new MMarca(a));
-		}
-		return lista;
+	@GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> lista(){
+		return new ResponseEntity<Object>(controller.lista(),HttpStatus.OK);
 	}
 	
-	public MMarca buscar(int id) {
-		try {
-			MMarca marca = null;
-			for(MMarca a: lista().stream().filter(x->x.getId()==id).collect(Collectors.toList())) {
-				marca = a;
-			}
-			return marca;
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}			
+	@GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE )
+	public ResponseEntity<Object> buscar(@PathVariable(name="id")int id){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Marca no encontrada");
+		return new ResponseEntity<Object>(controller.buscar(id),HttpStatus.OK);
 	}
 	
-	public String guardar(MMarca marca) {
-		try {
-			repository.save(invertir(marca));
-			return "Marca registrada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}		
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> crear(@RequestBody MMarca marca){
+		String respuesta = controller.guardar(marca);
+		if(respuesta==null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al registrar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.CREATED);
 	}
 	
-	public String actualizar(MMarca marca) {
-		try {
-			repository.save(invertir(marca));
-			return "Marca actualizada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@PutMapping(value="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> actualizar(@PathVariable(name="id") int id, @RequestBody MMarca marca){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Marca no encontrada");
+		String respuesta = controller.actualizar(marca);
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al actualizar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);			
 	}
 	
-	public String eliminar(MMarca marca) {
-		try {
-			Marca eliminar = invertir(marca);
-			eliminar.setVista(0);
-			repository.save(eliminar);
-			return "Marca eliminada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
-	}
-	
-	public Marca invertir(MMarca marca) {		
-		return new Marca(marca.getId(),marca.getDescripcion(),marca.getVista());
-	}
+	@DeleteMapping(value="/{id}")
+	public ResponseEntity<Object> eliminar(@PathVariable(name="id") int id){				
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Marca no encontrada");
+		String respuesta = controller.eliminar(controller.buscar(id));
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al eliminar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);
+	}	
 }

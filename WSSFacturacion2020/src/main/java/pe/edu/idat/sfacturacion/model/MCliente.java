@@ -1,6 +1,6 @@
 package pe.edu.idat.sfacturacion.model;
 
-import pe.edu.idat.sfacturacion.dao.entity.Cliente;
+import pe.edu.idat.sfacturacion.entity.Cliente;
 
 public class MCliente {
 	private int id;

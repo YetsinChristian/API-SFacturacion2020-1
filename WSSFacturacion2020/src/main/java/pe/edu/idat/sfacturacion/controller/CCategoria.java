@@ -1,75 +1,65 @@
 package pe.edu.idat.sfacturacion.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import pe.edu.idat.sfacturacion.dao.entity.Categoria;
-import pe.edu.idat.sfacturacion.dao.repository.RCategoria;
 import pe.edu.idat.sfacturacion.model.MCategoria;
+import pe.edu.idat.sfacturacion.services.SCategoria;
 
-@Component
+@RestController
+@RequestMapping("/sfacturacion/categorias")
 public class CCategoria {
 	@Autowired
-	private RCategoria repository;
-
-	public List<MCategoria> lista(){
-		List<MCategoria> lista = new ArrayList<>();
-		for(Categoria a : ((List<Categoria>)repository.findAll()).stream().filter(x->x.getVista()!=0).collect(Collectors.toList())) {
-			lista.add(new MCategoria(a));
-		}
-		return lista;
+	private SCategoria controller;
+	
+	@GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> lista(){
+		return new ResponseEntity<Object>(controller.lista(),HttpStatus.OK);
 	}
 	
-	public MCategoria buscar(int id) {
-		try {
-			MCategoria categoria = null;
-			for(MCategoria a : lista().stream().filter(x->x.getId()==id).collect(Collectors.toList())) {
-				categoria = a;
-			}
-			return categoria;
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE )
+	public ResponseEntity<Object> buscar(@PathVariable(name="id")int id){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Categoria no encontrada");
+		return new ResponseEntity<Object>(controller.buscar(id),HttpStatus.OK);
 	}
 	
-	public String guardar(MCategoria categoria) {
-		try {
-			repository.save(invertir(categoria));
-			return "Categoria registrada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> crear(@RequestBody MCategoria categoria){
+		String respuesta = controller.guardar(categoria);
+		if(respuesta==null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al registrar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.CREATED);
 	}
 	
-	public String actualizar(MCategoria categoria) {
-		try {
-			repository.save(invertir(categoria));
-			return "Categoria actualizada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
+	@PutMapping(value="/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> actualizar(@PathVariable(name="id") int id, @RequestBody MCategoria categoria){		
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Categoria no encontrada");
+		String respuesta = controller.actualizar(categoria);
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al actualizar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);			
 	}
 	
-	public String eliminar(MCategoria categoria) {
-		try {
-			Categoria eliminar = invertir(categoria);
-			eliminar.setVista(0);
-			repository.save(eliminar);
-			return "Categoria eliminada correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
-	}
-	
-	public Categoria invertir(MCategoria categoria) {
-		return new Categoria(categoria.getId(),categoria.getDescripcion(),categoria.getVista());
+	@DeleteMapping(value="/{id}")
+	public ResponseEntity<Object> eliminar(@PathVariable(name="id") int id){				
+		if(controller.buscar(id) == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Categoria no encontrada");
+		String respuesta = controller.eliminar(controller.buscar(id));
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al eliminar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);
 	}
 }

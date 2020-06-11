@@ -1,6 +1,6 @@
 package pe.edu.idat.sfacturacion.model;
 
-import pe.edu.idat.sfacturacion.dao.entity.Articulo;
+import pe.edu.idat.sfacturacion.entity.Articulo;
 
 public class MArticulo {
 	private int id;

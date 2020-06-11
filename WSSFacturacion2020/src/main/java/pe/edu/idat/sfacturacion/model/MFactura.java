@@ -1,7 +1,7 @@
 package pe.edu.idat.sfacturacion.model;
 
 
-import pe.edu.idat.sfacturacion.dao.entity.Factura;
+import pe.edu.idat.sfacturacion.entity.Factura;
 
 
 public class MFactura {

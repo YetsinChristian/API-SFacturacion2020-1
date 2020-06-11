@@ -1,65 +1,48 @@
 package pe.edu.idat.sfacturacion.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import pe.edu.idat.sfacturacion.dao.entity.Detalle;
-import pe.edu.idat.sfacturacion.dao.repository.RDetalle;
 import pe.edu.idat.sfacturacion.model.MDetalle;
+import pe.edu.idat.sfacturacion.services.SDetalle;
 
-@Component
+@RestController
+@RequestMapping("/sfacturacion/detalles")
 public class CDetalle {
+	
 	@Autowired
-	private RDetalle repository;
-	@Autowired
-	private CArticulo compArticulo;
-	@Autowired
-	private CFactura compFactura;
+	private SDetalle controller;
 	
-	public List<MDetalle> lista(int id){
-		List<MDetalle> lista = new ArrayList<>();
-		for(Detalle a : ((List<Detalle>)repository.findAll()).stream().filter(x->x.getFactura().getId() ==id).collect(Collectors.toList())) {
-			lista.add(new MDetalle(a));
-		}
-		return lista;
-	}
+	@GetMapping(value="/{id}", produces = MediaType.APPLICATION_JSON_VALUE )
+	public ResponseEntity<Object> lista(@PathVariable(name="id")int id){
+		return new ResponseEntity<Object>(controller.lista(id),HttpStatus.OK);
+	}		
 	
-	public String guardar(List<MDetalle> listaDetalle) {
-		try {
-			for(MDetalle detalle : listaDetalle) {
-				repository.save(invertir(detalle));
-			}			
-			return "Detalle registrado correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}
-	}
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> crear(@RequestBody List<MDetalle> listaDetalle){
+		String respuesta = controller.guardar(listaDetalle);
+		if(respuesta==null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al registrar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.CREATED);
+	}	
 	
-	public String eliminar(int id) {		
-		try {
-			List<MDetalle> lista = lista(id);
-			for(int i=0; i<lista.size();i++) {
-				repository.delete(invertir(lista.get(i)));
-			}
-			return "Detalle eliminado correctamente";
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			return null;
-		}			
-	}
-	
-	public Detalle invertir(MDetalle detalle) {
-		return new Detalle(
-				detalle.getId(),
-				detalle.getPrecio(),
-				detalle.getCantidad(),
-				compArticulo.invertir(compArticulo.buscar(detalle.getIdarticulo())),
-				compFactura.invertir(compFactura.buscar(detalle.getIdfactura()))
-				);
+	@DeleteMapping(value="/{id}")
+	public ResponseEntity<Object> eliminar(@PathVariable(name="id") int id){						
+		String respuesta = controller.eliminar(id);
+		if(respuesta == null)
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error al eliminar");
+		return new ResponseEntity<Object>(respuesta, HttpStatus.ACCEPTED);
 	}
 }

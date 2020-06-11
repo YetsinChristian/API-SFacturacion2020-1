@@ -1,4 +1,4 @@
-package pe.edu.idat.sfacturacion.dao.entity;
+package pe.edu.idat.sfacturacion.entity;
 
 import java.io.Serializable;
 
